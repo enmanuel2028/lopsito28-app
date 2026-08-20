@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Autorización — Casos Oscuros</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:#0b0d12; color:#e8eaf0;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; line-height:1.65; }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 64px 24px 96px; }
+  h1 { font-size: clamp(1.6rem, 4vw, 2.2rem); margin: 0 0 .3em; }
+  p { color:#b9c0cf; }
+  .ok { color:#4ade80; font-weight:700; }
+  .bad { color:#ff6a4d; font-weight:700; }
+  .box { background:#141821; border:1px solid #232937; border-radius:14px;
+    padding:20px 22px; margin:26px 0; }
+  code, .code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+  .code { display:block; width:100%; word-break:break-all; font-size:.95rem;
+    color:#ffd7a8; background:#0b0d12; border:1px solid #2b3242; border-radius:10px;
+    padding:14px 16px; margin:0 0 14px; }
+  button { font: inherit; font-weight:600; cursor:pointer; border:0; border-radius:10px;
+    padding:11px 20px; background:#ff2b2b; color:#fff; }
+  button:hover { background:#ff4a4a; }
+  .hint { font-size:.92rem; color:#79839a; }
+  ol { color:#b9c0cf; padding-left:1.2em; }
+  li { margin:.45em 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1 id="titulo">Procesando…</h1>
+  <div id="cuerpo"></div>
+</div>
+
+<script>
+(function () {
+  var q = new URLSearchParams(location.search);
+  var code = q.get("code");
+  var err  = q.get("error") || q.get("error_description");
+  var t = document.getElementById("titulo");
+  var c = document.getElementById("cuerpo");
+
+  if (!code) {
+    t.innerHTML = '<span class="bad">No se recibió el código</span>';
+    c.innerHTML = '<p>' + (err
+      ? 'TikTok respondió: <code>' + err.replace(/[<>&]/g, '') + '</code>'
+      : 'Esta página se abre sola al terminar de autorizar la app. ' +
+        'Si llegaste acá a mano, no hay nada que hacer.') + '</p>';
+    return;
+  }
+
+  t.innerHTML = '<span class="ok">Autorización lista</span>';
+  c.innerHTML =
+    '<p>Copiá la URL completa de la barra de direcciones (o el código de abajo) ' +
+    'y pegala en la terminal donde corriste <code>--login</code>.</p>' +
+    '<div class="box">' +
+      '<div class="code" id="url"></div>' +
+      '<button id="copiar">Copiar URL</button>' +
+      '<span class="hint" id="aviso" style="margin-left:12px"></span>' +
+    '</div>' +
+    '<ol>' +
+      '<li>Volvé a la terminal.</li>' +
+      '<li>Pegá lo copiado y dale Enter.</li>' +
+      '<li>Ya podés cerrar esta pestaña.</li>' +
+    '</ol>' +
+    '<p class="hint">Este código sirve una sola vez y caduca en pocos minutos. ' +
+    'No se lo pases a nadie ni lo publiques.</p>';
+
+  document.getElementById("url").textContent = location.href;
+  document.getElementById("copiar").addEventListener("click", function () {
+    var aviso = document.getElementById("aviso");
+    navigator.clipboard.writeText(location.href).then(function () {
+      aviso.textContent = "Copiado ✓";
+    }, function () {
+      aviso.textContent = "No se pudo copiar — seleccionalo a mano.";
+    });
+  });
+})();
+</script>
+</body>
+</html>
